@@ -1,0 +1,13 @@
+{
+  "name": "game-catalog-service",
+  "version": "1.0.0",
+  "description": "Specialized Web-service for Video Game Catalog and System Requirements (Variant 37)",
+  "main": "service.js",
+  "scripts": {
+    "start": "node service.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  }
+}
