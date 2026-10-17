@@ -1,0 +1,14 @@
+{
+  "name": "game-backend-service",
+  "version": "1.0.0",
+  "description": "Backend REST API for Game Library & Catalog Integration (Variant 37)",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.11.5",
+    "cors": "^2.8.5"
+  }
+}

@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameVault // Вариант 37: Каталог видеоигр & Библиотека</title>
+  <style>
+    :root {
+      --bg-base: #0a0e17;
+      --bg-surface: #111827;
+      --bg-card: #182234;
+      --bg-card-hover: #1f2c42;
+      --border-color: #27354d;
+      --border-focus: #00f0ff;
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --accent-cyan: #00f0ff;
+      --accent-cyan-glow: rgba(0, 240, 255, 0.25);
+      --accent-purple: #a855f7;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-stack);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Верхний декоративный светящийся градиент */
+    .top-glow {
+      position: fixed;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-purple), transparent);
+      box-shadow: 0 0 25px 3px var(--accent-cyan);
+      z-index: 1000;
+    }
+
+    /* Хедер */
+    header {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid var(--border-focus);
+      border-radius: var(--radius-md);
+      padding: 6px 10px;
+      box-shadow: 0 0 15px var(--accent-cyan-glow);
+    }
+
+    .logo-text h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #ffffff, var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-text p {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .cluster-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      font-size: 12px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Основной контент */
+    main {
+      flex: 1;
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Панель обязательных кнопок по заданию */
+    .hero-panel {
+      background: linear-gradient(135deg, rgba(24, 34, 52, 0.8), rgba(15, 23, 42, 0.9));
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-panel::after {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, var(--accent-cyan-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .badge-variant {
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .hero-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-top: 4px;
+      color: #fff;
+    }
+
+    .hero-subtitle {
+      color: var(--text-muted);
+      font-size: 13px;
+      max-width: 700px;
+    }
+
+    /* Секция 2 функциональных кнопок */
+    .button-trigger-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .action-card {
+      background: rgba(17, 24, 39, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+
+    .action-card:hover {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 4px 20px rgba(0, 240, 255, 0.1);
+    }
+
+    .card-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--accent-cyan);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-db {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(2, 132, 199, 0.3);
+    }
+
+    .btn-db:hover {
+      background: linear-gradient(135deg, #0369a1, #075985);
+      transform: translateY(-1px);
+    }
+
+    .btn-ws {
+      background: linear-gradient(135deg, #7c3aed, #6d28d9);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-ws:hover {
+      background: linear-gradient(135deg, #6d28d9, #5b21b6);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-surface);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--text-muted);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: var(--radius-sm);
+    }
+
+    .btn-success {
+      background: #059669;
+      color: #fff;
+    }
+    .btn-success:hover {
+      background: #047857;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: #fff;
+    }
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    /* Статистика */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .stat-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .stat-icon {
+      font-size: 26px;
+      background: rgba(255, 255, 255, 0.05);
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+
+    .stat-val {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .stat-name {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Навигационные вкладки */
+    .tabs-bar {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 20px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tab-btn.active {
+      color: var(--accent-cyan);
+      border-bottom: 2px solid var(--accent-cyan);
+      background: rgba(0, 240, 255, 0.05);
+    }
+
+    /* Панель фильтров */
+    .filters-bar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    select, input[type="text"], input[type="number"] {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      outline: none;
+    }
+
+    select:focus, input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 8px var(--accent-cyan-glow);
+    }
+
+    /* Сетка карточек */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: #3b82f6;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .card-header-flex {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .card-avatar {
+      font-size: 32px;
+      width: 52px;
+      height: 52px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .card-meta {
+      flex: 1;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .card-genre {
+      font-size: 12px;
+      color: var(--accent-cyan);
+      font-weight: 500;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0;
+    }
+
+    .tag {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .specs-box {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 12px;
+      margin: 12px 0;
+      border-left: 3px solid var(--accent-purple);
+    }
+
+    .spec-line {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .spec-line:last-child {
+      margin-bottom: 0;
+    }
+
+    .spec-name {
+      color: var(--text-muted);
+    }
+
+    .spec-val {
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      margin-top: 12px;
+    }
+
+    .badge-status {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-playing {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+      border: 1px solid var(--accent-green);
+    }
+
+    .status-completed {
+      background: rgba(168, 85, 247, 0.15);
+      color: var(--accent-purple);
+      border: 1px solid var(--accent-purple);
+    }
+
+    .status-plan {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-amber);
+      border: 1px solid var(--accent-amber);
+    }
+
+    /* Архитектурный монитор */
+    .arch-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .arch-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+
+    .arch-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .arch-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* Модальное окно добавления / редактирования */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      padding: 16px;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-focus);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px var(--accent-cyan-glow);
+      border-radius: var(--radius-lg);
+      max-width: 500px;
+      width: 100%;
+      padding: 24px;
+    }
+
+    .form-field {
+      margin-bottom: 14px;
+    }
+
+    .form-field label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-field input, .form-field select, .form-field textarea {
+      width: 100%;
+    }
+
+    textarea {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      min-height: 70px;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    /* Toast уведомления */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent-cyan);
+      padding: 12px 18px;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      animation: slideIn 0.3s ease;
+      min-width: 280px;
+    }
+
+    .toast.success { border-left-color: var(--accent-green); }
+    .toast.error { border-left-color: var(--accent-red); }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 20px 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: auto;
+    }
+
+    .source-tag {
+      font-size: 11px;
+      color: var(--accent-cyan);
+      background: rgba(0, 240, 255, 0.08);
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-glow"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <div class="logo-area">
+        <div class="logo-icon">🎮</div>
+        <div class="logo-text">
+          <h1>GameVault // Variant 37</h1>
+          <p>Docker Compose Microservices Application</p>
+        </div>
+      </div>
+      <div class="cluster-status">
+        <span class="status-dot"></span>
+        <span id="cluster-status-text">4/4 Сервиса активны (Bridge Network)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main>
+    <!-- Панель управления варианта 37 с двумя обязательными кнопками -->
+    <div class="hero-panel">
+      <div class="hero-meta">
+        <div>
+          <span class="badge-variant">ВАРИАНТ №37</span>
+          <h2 class="hero-title">Каталог видеоигр & Пользовательская библиотека</h2>
+        </div>
+        <div style="font-size: 12px; color: var(--text-muted); text-align: right;">
+          <div>СУБД: <strong>PostgreSQL 16</strong></div>
+          <div>Web-сервис: <strong>Catalog API (порт 5001)</strong></div>
+        </div>
+      </div>
+      <p class="hero-subtitle">
+        Многокомпонентное приложение: микросервис каталога производит поиск по жанрам и минимальным системным требованиям, а бэкенд обеспечивает синхронизацию с реляционной базой данных библиотеки.
+      </p>
+
+      <!-- Обязательные функциональные кнопки по заданию практикума -->
+      <div class="button-trigger-grid">
+        <div class="action-card">
+          <div>
+            <div class="card-label">Требование ТЗ: Кнопка №1</div>
+            <div class="card-desc">
+              Запрос сохраненных игр из внутренней базы данных <strong>PostgreSQL</strong> через Backend API.
+            </div>
+          </div>
+          <button id="btn-fetch-db" class="btn btn-db" onclick="loadLibraryFromDB()">
+            <span>💾</span>
+            <span>Кнопка 1: Загрузить библиотеку (БД PostgreSQL)</span>
+          </button>
+        </div>
+
+        <div class="action-card">
+          <div>
+            <div class="card-label">Требование ТЗ: Кнопка №2</div>
+            <div class="card-desc">
+              Запрос игрового каталога от специализированного <strong>Web-сервиса</strong> с проверкой системных требований.
+            </div>
+          </div>
+          <button id="btn-fetch-ws" class="btn btn-ws" onclick="loadCatalogFromWS()">
+            <span>🌐</span>
+            <span>Кнопка 2: Запросить каталог (Web-сервис)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Метрики и статистика -->
+    <div class="stats-row" id="stats-container">
+      <div class="stat-box">
+        <div class="stat-icon">📚</div>
+        <div>
+          <div class="stat-val" id="stat-total-games">0</div>
+          <div class="stat-name">Всего игр в БД</div>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-icon">⏳</div>
+        <div>
+          <div class="stat-val" id="stat-total-hours">0 ч</div>
+          <div class="stat-name">Суммарно наиграно</div>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-icon">🏆</div>
+        <div>
+          <div class="stat-val" id="stat-completed-games">0</div>
+          <div class="stat-name">Пройдено игр</div>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-icon">⭐</div>
+        <div>
+          <div class="stat-val" id="stat-avg-rating">0.0</div>
+          <div class="stat-name">Средняя оценка пользователя</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Табы переключения вида -->
+    <div class="tabs-bar">
+      <button class="tab-btn active" id="tab-library-btn" onclick="switchTab('library')">
+        <span>📚</span> Моя библиотека (БД)
+      </button>
+      <button class="tab-btn" id="tab-catalog-btn" onclick="switchTab('catalog')">
+        <span>🎮</span> Каталог видеоигр (Web-сервис)
+      </button>
+      <button class="tab-btn" id="tab-add-btn" onclick="openAddModal()">
+        <span>➕</span> Добавить запись в БД
+      </button>
+      <button class="tab-btn" id="tab-arch-btn" onclick="switchTab('arch')">
+        <span>🔍</span> Архитектура & Healthcheck
+      </button>
+    </div>
+
+    <!-- БЛОК 1: БИБЛИОТЕКА ИЗ БАЗЫ ДАННЫХ -->
+    <div id="section-library">
+      <div class="filters-bar">
+        <div class="filter-group">
+          <span class="filter-label">Фильтр по статусу в БД:</span>
+          <select id="lib-status-filter" onchange="loadLibraryFromDB()">
+            <option value="all">Все записи</option>
+            <option value="playing">В процессе (Playing)</option>
+            <option value="completed">Пройдено (Completed)</option>
+            <option value="plan_to_play">В планах (Backlog)</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Сортировка:</span>
+          <select id="lib-sort-filter" onchange="loadLibraryFromDB()">
+            <option value="added_at">По дате добавления</option>
+            <option value="playtime_hours">По времени прохождения</option>
+            <option value="user_rating">По моей оценке</option>
+            <option value="title">По алфавиту</option>
+          </select>
+        </div>
+        <div style="margin-left: auto; font-size: 12px; color: var(--text-muted);" id="lib-counter-text">
+          Записей загружено: 0
+        </div>
+      </div>
+
+      <div class="cards-grid" id="library-container">
+        <!-- Заполняется JS -->
+      </div>
+    </div>
+
+    <!-- БЛОК 2: КАТАЛОГ ИЗ СПЕЦИАЛИЗИРОВАННОГО WEB-СЕРВИСА -->
+    <div id="section-catalog" style="display: none;">
+      <div class="filters-bar">
+        <div class="filter-group">
+          <span class="filter-label">Жанр (Web-Service):</span>
+          <select id="ws-genre-filter" onchange="loadCatalogFromWS()">
+            <option value="all">Все жанры</option>
+            <option value="RPG">RPG</option>
+            <option value="Action">Action</option>
+            <option value="CRPG">CRPG</option>
+            <option value="Shooter">Shooter / FPS</option>
+            <option value="Roguelike">Roguelike</option>
+            <option value="Strategy">Strategy</option>
+            <option value="Metroidvania">Metroidvania</option>
+            <option value="Horror">Horror</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">RAM вашего ПК (мин. требования):</span>
+          <select id="ws-ram-filter" onchange="loadCatalogFromWS()">
+            <option value="">Любой объем</option>
+            <option value="4">До 4 GB RAM</option>
+            <option value="8">До 8 GB RAM</option>
+            <option value="12">До 12 GB RAM</option>
+            <option value="16">До 16 GB RAM</option>
+          </select>
+        </div>
+        <div class="filter-group" style="flex: 1;">
+          <input type="text" id="ws-search-input" placeholder="Поиск игры по названию или тегу..." oninput="debounceCatalogSearch()">
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="loadCatalogFromWS()">
+          <span>🔄</span> Обновить
+        </button>
+      </div>
+
+      <div class="cards-grid" id="catalog-container">
+        <!-- Заполняется JS -->
+      </div>
+    </div>
+
+    <!-- БЛОК 3: АРХИТЕКТУРА И ДИАГНОСТИКА -->
+    <div id="section-arch" style="display: none;">
+      <div class="arch-panel">
+        <h3 style="margin-bottom: 8px;">📡 Статус 4 контейнеров Docker Compose</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+          Все сервисы запущены в единой виртуальной мостовой сети <code>game-network</code>.
+        </p>
+
+        <div class="arch-grid">
+          <div class="arch-card">
+            <div class="arch-header">
+              <span class="arch-title">Frontend</span>
+              <span class="badge-status status-playing">8080 : 80</span>
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted);">
+              Контейнер <code>game-frontend</code> на базе <strong>Nginx Alpine</strong>. Раздает статический SPA и проксирует запросы к API.
+            </p>
+          </div>
+
+          <div class="arch-card">
+            <div class="arch-header">
+              <span class="arch-title">Backend REST API</span>
+              <span class="badge-status status-playing">Порт 5000</span>
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted);">
+              Контейнер <code>game-backend</code> на <strong>Node.js 20</strong>. Обеспечивает бизнес-логику, CRUD-операции с PostgreSQL и интеграцию с Web-сервисом.
+            </p>
+          </div>
+
+          <div class="arch-card">
+            <div class="arch-header">
+              <span class="arch-title">База данных</span>
+              <span class="badge-status status-completed">PostgreSQL 16</span>
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted);">
+              Контейнер <code>game-database</code> с настроенным <strong>healthcheck</strong> и хранением данных в volume <code>postgres_data</code>.
+            </p>
+          </div>
+
+          <div class="arch-card">
+            <div class="arch-header">
+              <span class="arch-title">Web-сервис (Вар. 37)</span>
+              <span class="badge-status status-plan">Порт 5001</span>
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted);">
+              Контейнер <code>game-web-service</code>. Каталог видеоигр с фильтрацией по жанрам и минимальным системным характеристикам.
+            </p>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <h4 style="font-size: 14px; margin-bottom: 8px;">Текущий ответ healthcheck бэкенда:</h4>
+          <pre id="health-json" style="background: rgba(0,0,0,0.4); padding: 16px; border-radius: 8px; font-size: 12px; overflow-x: auto; color: var(--accent-cyan); border: 1px solid var(--border-color);">Загрузка диагностических данных...</pre>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Модальное окно добавления новой игры в библиотеку (БД) -->
+  <div class="modal-backdrop" id="add-modal">
+    <div class="modal-box">
+      <h3 style="margin-bottom: 16px;">Добавить игру в библиотеку (БД)</h3>
+      <form id="add-game-form" onsubmit="handleCreateGame(event)">
+        <div class="form-field">
+          <label>Название игры *</label>
+          <input type="text" id="add-title" required placeholder="Например: S.T.A.L.K.E.R. 2">
+        </div>
+        <div class="form-field">
+          <label>Жанр *</label>
+          <input type="text" id="add-genre" required placeholder="Например: FPS / Survival Horror">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-field">
+            <label>Статус прохождения</label>
+            <select id="add-status">
+              <option value="playing">В процессе</option>
+              <option value="completed">Пройдено</option>
+              <option value="plan_to_play">В планах</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Мин. RAM (GB)</label>
+            <input type="number" id="add-ram" value="8" min="1" max="64">
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-field">
+            <label>Оценка (1-10)</label>
+            <input type="number" id="add-rating" value="9" min="1" max="10">
+          </div>
+          <div class="form-field">
+            <label>Время в игре (часов)</label>
+            <input type="number" id="add-hours" value="0" min="0" step="0.5">
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Заметки / Впечатления</label>
+          <textarea id="add-notes" placeholder="Отзыв, билд или памятка..."></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px;">
+          <button type="button" class="btn btn-secondary" onclick="closeAddModal()">Отмена</button>
+          <button type="submit" class="btn btn-db">Сохранить в PostgreSQL</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast уведомления -->
+  <div id="toast-container"></div>
+
+  <footer>
+    Лабораторная работа по Docker Compose // Вариант 37: Каталог видеоигр // Архитектура из 4 микросервисов
+  </footer>
+
+  <script>
+    // URL бэкенда: используем относительный путь через Nginx-прокси (/api),
+    // с автоматическим fallback на http://localhost:5000 при локальном открытии без прокси.
+    const API_BASE = window.location.port === '8080' ? '/api' : (window.location.port === '5000' ? '' : 'http://localhost:5000/api');
+
+    let debounceTimer = null;
+
+    // Инициализация при загрузке страницы
+    window.addEventListener('DOMContentLoaded', () => {
+      loadLibraryFromDB();
+      loadCatalogFromWS();
+      fetchStats();
+      fetchHealth();
+      setInterval(fetchHealth, 15000);
+    });
+
+    // Переключение вкладок
+    function switchTab(tab) {
+      document.getElementById('section-library').style.display = tab === 'library' ? 'block' : 'none';
+      document.getElementById('section-catalog').style.display = tab === 'catalog' ? 'block' : 'none';
+      document.getElementById('section-arch').style.display = tab === 'arch' ? 'block' : 'none';
+
+      document.getElementById('tab-library-btn').classList.toggle('active', tab === 'library');
+      document.getElementById('tab-catalog-btn').classList.toggle('active', tab === 'catalog');
+      document.getElementById('tab-arch-btn').classList.toggle('active', tab === 'arch');
+    }
+
+    // ========================================================
+    // КНОПКА 1: Загрузка библиотеки из БД PostgreSQL
+    // ========================================================
+    async function loadLibraryFromDB() {
+      const status = document.getElementById('lib-status-filter').value;
+      const sortBy = document.getElementById('lib-sort-filter').value;
+      const container = document.getElementById('library-container');
+
+      try {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">Загрузка библиотеки из PostgreSQL...</div>';
+
+        const res = await fetch(`${API_BASE}/library?status=${status}&sort_by=${sortBy}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        document.getElementById('lib-counter-text').innerText = `Записей в БД: ${data.total}`;
+        renderLibraryCards(data.library);
+        fetchStats();
+        showToast(`Успешно загружено ${data.total} игр из базы данных`, 'success');
+      } catch (err) {
+        console.error('Ошибка загрузки библиотеки:', err);
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--accent-red); background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
+            ⚠️ Не удалось подключиться к Backend / PostgreSQL.<br>
+            <small style="color: var(--text-muted);">${err.message}</small>
+          </div>`;
+        showToast('Ошибка при чтении из базы данных', 'error');
+      }
+    }
+
+    function renderLibraryCards(games) {
+      const container = document.getElementById('library-container');
+      if (!games || games.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">В библиотеке пока нет записей. Добавьте игру из каталога!</div>';
+        return;
+      }
+
+      const statusMap = {
+        'playing': { label: 'В процессе', class: 'status-playing' },
+        'completed': { label: 'Пройдено', class: 'status-completed' },
+        'plan_to_play': { label: 'В планах', class: 'status-plan' }
+      };
+
+      container.innerHTML = games.map(game => {
+        const statusInfo = statusMap[game.status] || { label: game.status, class: 'status-plan' };
+        return `
+          <div class="card">
+            <div>
+              <span class="source-tag">Источник: PostgreSQL (ID #${game.id})</span>
+              <div class="card-header-flex">
+                <div class="card-avatar">${game.cover_emoji || '🎮'}</div>
+                <div class="card-meta">
+                  <div class="card-title">${escapeHtml(game.title)}</div>
+                  <div class="card-genre">${escapeHtml(game.genre)}</div>
+                </div>
+              </div>
+
+              <div class="specs-box">
+                <div class="spec-line">
+                  <span class="spec-name">Платформа:</span>
+                  <span class="spec-val">${escapeHtml(game.platform || 'PC')}</span>
+                </div>
+                <div class="spec-line">
+                  <span class="spec-name">Мин. RAM:</span>
+                  <span class="spec-val">${game.min_ram_gb || 8} GB</span>
+                </div>
+                <div class="spec-line">
+                  <span class="spec-name">Время в игре:</span>
+                  <span class="spec-val" style="color: var(--accent-cyan); font-weight: 700;">${game.playtime_hours} ч.</span>
+                </div>
+                <div class="spec-line">
+                  <span class="spec-name">Оценка:</span>
+                  <span class="spec-val" style="color: var(--accent-amber);">⭐ ${game.user_rating} / 10</span>
+                </div>
+              </div>
+
+              ${game.notes ? `<p style="font-size: 12px; color: var(--text-muted); font-style: italic; margin-bottom: 8px;">"${escapeHtml(game.notes)}"</p>` : ''}
+            </div>
+
+            <div class="card-footer">
+              <span class="badge-status ${statusInfo.class}">${statusInfo.label}</span>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn btn-secondary btn-sm" onclick="incrementPlaytime(${game.id}, ${game.playtime_hours})" title="+1 час прохождения">
+                  ⏱️ +1ч
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="deleteGame(${game.id})" title="Удалить из БД">
+                  🗑️
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ========================================================
+    // КНОПКА 2: Загрузка каталога из специализированного Web-сервиса
+    // ========================================================
+    async function loadCatalogFromWS() {
+      const genre = document.getElementById('ws-genre-filter').value;
+      const maxRam = document.getElementById('ws-ram-filter').value;
+      const query = document.getElementById('ws-search-input').value;
+      const container = document.getElementById('catalog-container');
+
+      try {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">Запрос данных у Web-сервиса каталога видеоигр...</div>';
+
+        const params = new URLSearchParams();
+        if (genre && genre !== 'all') params.append('genre', genre);
+        if (maxRam) params.append('max_ram_gb', maxRam);
+        if (query) params.append('q', query);
+
+        const res = await fetch(`${API_BASE}/catalog/search?${params.toString()}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        renderCatalogCards(data.games, maxRam);
+        showToast(`Web-сервис вернул ${data.total} игр по вашему запросу`, 'success');
+      } catch (err) {
+        console.error('Ошибка вызова Web-сервиса:', err);
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--accent-red); background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
+            ⚠️ Ошибка соединения с Web-сервисом (каталог видеоигр).<br>
+            <small style="color: var(--text-muted);">${err.message}</small>
+          </div>`;
+        showToast('Web-сервис каталога недоступен', 'error');
+      }
+    }
+
+    function renderCatalogCards(games, filteredRam) {
+      const container = document.getElementById('catalog-container');
+      if (!games || games.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">По вашим системным требованиям и фильтрам ничего не найдено.</div>';
+        return;
+      }
+
+      container.innerHTML = games.map(game => {
+        const req = game.min_requirements || {};
+        return `
+          <div class="card">
+            <div>
+              <span class="source-tag" style="color: var(--accent-purple); background: rgba(168, 85, 247, 0.12);">
+                Источник: Web-Service (Каталог)
+              </span>
+              <div class="card-header-flex">
+                <div class="card-avatar">${game.cover_emoji || '🎮'}</div>
+                <div class="card-meta">
+                  <div class="card-title">${escapeHtml(game.title)}</div>
+                  <div class="card-genre">${escapeHtml(game.genre)} (${game.year})</div>
+                </div>
+              </div>
+
+              <div class="card-tags">
+                ${(game.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
+              </div>
+
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+                ${escapeHtml(game.description)}
+              </p>
+
+              <div class="specs-box">
+                <div style="font-weight: 700; color: var(--accent-purple); margin-bottom: 4px; font-size: 11px; text-transform: uppercase;">
+                  Минимальные системные требования:
+                </div>
+                <div class="spec-line"><span class="spec-name">ОС:</span><span class="spec-val">${escapeHtml(req.os || 'Windows 10')}</span></div>
+                <div class="spec-line"><span class="spec-name">Процессор:</span><span class="spec-val">${escapeHtml(req.cpu || 'Dual Core')}</span></div>
+                <div class="spec-line"><span class="spec-name">Оперативная память:</span><span class="spec-val" style="color: var(--accent-cyan); font-weight: bold;">${req.ram_gb || 8} GB RAM</span></div>
+                <div class="spec-line"><span class="spec-name">Видеокарта:</span><span class="spec-val">${escapeHtml(req.gpu || 'DirectX 11')}</span></div>
+                <div class="spec-line"><span class="spec-name">Место на диске:</span><span class="spec-val">${req.storage_gb || 50} GB</span></div>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <span style="font-size: 13px; font-weight: 700; color: var(--accent-amber);">
+                Metascore: ${game.rating * 10} / 100
+              </span>
+              <button class="btn btn-success btn-sm" onclick='addCatalogGameToDB(${JSON.stringify(game).replace(/'/g, "&apos;")})'>
+                ➕ В библиотеку
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Добавление игры из каталога Web-сервиса напрямую в PostgreSQL
+    async function addCatalogGameToDB(game) {
+      try {
+        const payload = {
+          game_id: game.id,
+          title: game.title,
+          genre: game.genre,
+          status: 'plan_to_play',
+          user_rating: Math.round(game.rating) || 9,
+          playtime_hours: 0,
+          platform: 'PC (Steam)',
+          min_ram_gb: game.min_requirements ? game.min_requirements.ram_gb : 8,
+          notes: `Добавлено из каталога Web-сервиса. ${game.description}`,
+          cover_emoji: game.cover_emoji || '🎮'
+        };
+
+        const res = await fetch(`${API_BASE}/library`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error('Ошибка добавления');
+        const data = await res.json();
+
+        showToast(`"${game.title}" добавлена в базу данных!`, 'success');
+        fetchStats();
+      } catch (err) {
+        showToast('Не удалось добавить игру в БД', 'error');
+      }
+    }
+
+    // Быстрое инкрементирование времени в игре (+1 час)
+    async function incrementPlaytime(id, currentHours) {
+      try {
+        const newHours = Number(currentHours) + 1;
+        const res = await fetch(`${API_BASE}/library/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playtime_hours: newHours })
+        });
+        if (res.ok) {
+          showToast(`Время обновлено: ${newHours} ч.`, 'success');
+          loadLibraryFromDB();
+        }
+      } catch (err) {
+        showToast('Ошибка обновления времени', 'error');
+      }
+    }
+
+    // Удаление игры из БД
+    async function deleteGame(id) {
+      if (!confirm('Удалить эту игру из вашей базы данных?')) return;
+      try {
+        const res = await fetch(`${API_BASE}/library/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          showToast('Игра удалена из базы данных', 'success');
+          loadLibraryFromDB();
+        }
+      } catch (err) {
+        showToast('Ошибка удаления записи', 'error');
+      }
+    }
+
+    // Добавление произвольной игры через модальное окно
+    async function handleCreateGame(e) {
+      e.preventDefault();
+      const payload = {
+        title: document.getElementById('add-title').value,
+        genre: document.getElementById('add-genre').value,
+        status: document.getElementById('add-status').value,
+        min_ram_gb: parseInt(document.getElementById('add-ram').value, 10),
+        user_rating: parseInt(document.getElementById('add-rating').value, 10),
+        playtime_hours: parseFloat(document.getElementById('add-hours').value),
+        notes: document.getElementById('add-notes').value,
+        cover_emoji: '🎮'
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/library`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          showToast('Новая игра сохранена в PostgreSQL', 'success');
+          closeAddModal();
+          document.getElementById('add-game-form').reset();
+          switchTab('library');
+          loadLibraryFromDB();
+        }
+      } catch (err) {
+        showToast('Ошибка при отправке в БД', 'error');
+      }
+    }
+
+    // Запрос агрегированной статистики
+    async function fetchStats() {
+      try {
+        const res = await fetch(`${API_BASE}/stats`);
+        if (res.ok) {
+          const data = await res.json();
+          const s = data.stats;
+          document.getElementById('stat-total-games').innerText = s.total_games || 0;
+          document.getElementById('stat-total-hours').innerText = `${s.total_playtime || 0} ч`;
+          document.getElementById('stat-completed-games').innerText = s.completed_games || 0;
+          document.getElementById('stat-avg-rating').innerText = `${s.avg_rating || 0} / 10`;
+        }
+      } catch (err) {
+        console.warn('Не удалось загрузить статистику:', err);
+      }
+    }
+
+    // Запрос диагностического healthcheck
+    async function fetchHealth() {
+      try {
+        const healthUrl = window.location.port === '8080' ? '/health' : 'http://localhost:5000/health';
+        const res = await fetch(healthUrl);
+        const data = await res.json();
+        document.getElementById('health-json').innerText = JSON.stringify(data, null, 2);
+        document.getElementById('cluster-status-text').innerText = '4/4 Сервиса активны (Bridge Network)';
+      } catch (err) {
+        document.getElementById('health-json').innerText = `Ошибка подключения к бэкенду: ${err.message}`;
+        document.getElementById('cluster-status-text').innerText = 'Внимание: неполадки со связью';
+      }
+    }
+
+    function debounceCatalogSearch() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        loadCatalogFromWS();
+      }, 350);
+    }
+
+    function openAddModal() {
+      document.getElementById('add-modal').classList.add('active');
+    }
+
+    function closeAddModal() {
+      document.getElementById('add-modal').classList.remove('active');
+    }
+
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<span>${type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️')}</span><span>${escapeHtml(msg)}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
